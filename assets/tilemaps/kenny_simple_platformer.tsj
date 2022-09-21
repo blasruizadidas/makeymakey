@@ -1,0 +1,15 @@
+{ "columns":14,
+ "image":"..\/..\/..\/..\/..\/Users\/ruizbla\/Downloads\/phaser-3-and-tiled-building-a-platformer-assets\/stackabuse-platformer\/assets\/tilesets\/platformPack_tilesheet.png",
+ "imageheight":448,
+ "imagewidth":896,
+ "margin":0,
+ "name":"kenny_simple_platformer",
+ "spacing":0,
+ "tilecount":98,
+ "tiledversion":"1.9.2",
+ "tileheight":64,
+ "tilewidth":64,
+ "transparentcolor":"#ff00ff",
+ "type":"tileset",
+ "version":"1.9"
+}
