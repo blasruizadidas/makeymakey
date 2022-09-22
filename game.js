@@ -16,14 +16,14 @@ const config = {
     default: 'arcade',
     arcade: {
       gravity: { y: 500 },
-      debug: false,
+      debug: true,
     },
   }
 };
 const game = new Phaser.Game(config);
 function preload() {
   this.load.image('background', 'assets/images/background.png');
-  this.load.image('spike', 'assets/images/spike.png');
+  this.load.image('spike', 'assets/images/lava.png');
   // At last image must be loaded with its JSON
   this.load.atlas('player', 'assets/images/kenney_player.png', 'assets/images/kenney_player_atlas.json');
   this.load.image('tiles', 'assets/tilesets/platformPack_tilesheet.png');
@@ -31,21 +31,30 @@ function preload() {
   this.load.tilemapTiledJSON('map', 'assets/tilemaps/level1.json');
 }
 function create() {
-  this.cameras.main.setBounds(0, 0, 6392, 640);
-  this.physics.world.setBounds(0, 0, 6392, 640);
+  this.cameras.main.setBounds(0, 0, 4498, 640);
+  this.physics.world.setBounds(0, 0, 4498, 640);
   const backgroundImage = this.add.image(0, 0, 'background').setOrigin(0, 0);
   backgroundImage.setScale(20, 0.8);
   const map = this.make.tilemap({ key: 'map' });
   const tileset = map.addTilesetImage('kenney_simple_platformer', 'tiles');
   const platforms = map.createStaticLayer('Platforms', tileset, 0, 200);
+  const platforms2 = map.createDynamicLayer('Platforms2', tileset, 0, 200);
+  const platforms3 = map.createStaticLayer('Platforms3', tileset, 0, 200);
+
   platforms.setCollisionByExclusion(-1, true);
+  platforms2.setCollisionByExclusion(-1, true);
+  platforms3.setCollisionByExclusion(-1, true);
   // Player
-  this.player = this.physics.add.sprite(50, 300, 'player');
+  this.player = this.physics.add.sprite(50, 100, 'player');
   this.player.setBounce(0.1);
   this.player.setCollideWorldBounds(true);
+  this.player.setSize(50, 99)
   this.physics.add.collider(this.player, platforms);
+  //this.physics.add.collider(this.player, platforms2);
+  this.physics.add.collider(this.player, platforms3);
+  window.platforms2 = platforms2;
   this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
-  
+
   this.anims.create({
     key: 'walk',
     frames: this.anims.generateFrameNames('player', {
@@ -80,6 +89,8 @@ function create() {
     const spikeSprite = this.spikes.create(spike.x, spike.y + 200 - spike.height, 'spike').setOrigin(0);
   });
   this.physics.add.collider(this.player, this.spikes, playerHit, null, this);
+
+
 }
 function playerHit(player, spike) {
   player.setVelocity(0, 0);
@@ -98,12 +109,12 @@ function playerHit(player, spike) {
 function update() {
   // Control the player with left or right keys
   if (this.cursors.left.isDown) {
-    this.player.setVelocityX(-500);
+    this.player.setVelocityX(-250);
     if (this.player.body.onFloor()) {
       this.player.play('walk', true);
     }
   } else if (this.cursors.right.isDown) {
-    this.player.setVelocityX(500);
+    this.player.setVelocityX(250);
     if (this.player.body.onFloor()) {
       this.player.play('walk', true);
     }
@@ -119,7 +130,7 @@ function update() {
   // Player can jump while walking any direction by pressing the space bar
   // or the 'UP' arrow
   if ((this.cursors.space.isDown || this.cursors.up.isDown) && this.player.body.onFloor()) {
-    this.player.setVelocityY(-350);
+    this.player.setVelocityY(-250);
     this.player.play('jump', true);
   }
   if (this.player.body.velocity.x > 0) {
