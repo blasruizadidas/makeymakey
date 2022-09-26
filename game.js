@@ -24,6 +24,10 @@ const game = new Phaser.Game(config);
 function preload() {
   this.load.image('background', 'assets/images/background.png');
   this.load.image('spike', 'assets/images/lava.png');
+  this.load.image('bluedoor', 'assets/images/bluedoor.png');
+  this.load.image('yellowdoor', 'assets/images/yellowdoor.png');
+  this.load.image('reddoor', 'assets/images/reddoor.png');
+  this.load.image('greendoor', 'assets/images/greendoor.png');
   // At last image must be loaded with its JSON
   this.load.atlas('player', 'assets/images/kenney_player.png', 'assets/images/kenney_player_atlas.json');
   this.load.image('tiles', 'assets/tilesets/platformPack_tilesheet.png');
@@ -45,14 +49,16 @@ function create() {
   platforms2.setCollisionByExclusion(-1, true);
   platforms3.setCollisionByExclusion(-1, true);
   // Player
-  this.player = this.physics.add.sprite(50, 100, 'player');
+  this.player = this.physics.add.sprite(2492, 100, 'player');
   this.player.setBounce(0.1);
   this.player.setCollideWorldBounds(true);
   this.player.setSize(50, 99)
   this.physics.add.collider(this.player, platforms);
-  //this.physics.add.collider(this.player, platforms2);
+  this.physics.add.collider(this.player, platforms2);
   this.physics.add.collider(this.player, platforms3);
-  window.platforms2 = platforms2;
+
+  platforms2.alpha = 0;
+  platforms3.alpha = 0;
   this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
 
   this.anims.create({
@@ -84,11 +90,22 @@ function create() {
   });
   // Let's get the spike objects, these are NOT sprites
   // We'll create spikes in our sprite group for each object in our map
-  map.getObjectLayer('Spikes').objects.forEach((spike) => {
-    // Add new spikes to our sprite group
-    const spikeSprite = this.spikes.create(spike.x, spike.y + 200 - spike.height, 'spike').setOrigin(0);
-  });
-  this.physics.add.collider(this.player, this.spikes, playerHit, null, this);
+
+
+
+  // Puerta amarilla
+  this.door1 = this.physics.add.staticImage(670, 490, 'yellowdoor'); // Listo
+  this.door2 = this.physics.add.staticImage(1310, 424, 'bluedoor'); // List
+  this.door3 = this.physics.add.staticImage(1950, 360, 'reddoor'); // Listo
+  this.door4 = this.physics.add.staticImage(2592, 296, 'greendoor'); // Listo
+  this.door4.body.setSize(64, 64, true);
+
+  console.log(this.door4);
+  this.door5 = this.physics.add.staticImage(2786, 296, 'bluedoor');// Listo
+  this.door6 = this.physics.add.staticImage(3296, 296, 'reddoor'); // Listo
+  this.door7 = this.physics.add.staticImage(3808, 296, 'greendoor'); // Listo
+  this.door8 = this.physics.add.staticImage(4066, 360, 'yellowdoor'); // Listo
+
 
 
 }
@@ -139,4 +156,5 @@ function update() {
     // otherwise, make them face the other side
     this.player.setFlipX(true);
   }
+  this.physics.world.collide(this.player, [this.door4, this.door5, this.door6, this.door7, this.door8]);
 }
