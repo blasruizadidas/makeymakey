@@ -16,14 +16,14 @@ const config = {
     default: 'arcade',
     arcade: {
       gravity: { y: 500 },
-      debug: true,
+      debug: false,
     },
   }
 };
 const game = new Phaser.Game(config);
 function preload() {
   this.load.image('background', 'assets/images/background.png');
-  this.load.image('spike', 'assets/images/lava.png');
+  this.load.image('spike', 'assets/images/spike.png');
   this.load.image('bluedoor', 'assets/images/bluedoor.png');
   this.load.image('yellowdoor', 'assets/images/yellowdoor.png');
   this.load.image('reddoor', 'assets/images/reddoor.png');
@@ -41,26 +41,23 @@ function create() {
   backgroundImage.setScale(20, 0.8);
   const map = this.make.tilemap({ key: 'map' });
   const tileset = map.addTilesetImage('kenney_simple_platformer', 'tiles');
-  const platforms = map.createStaticLayer('Platforms', tileset, 0, 200);
-  const platforms2 = map.createDynamicLayer('Platforms2', tileset, 0, 200);
-  const platforms3 = map.createStaticLayer('Platforms3', tileset, 0, 200);
-
-  platforms.setCollisionByExclusion(-1, true);
-  platforms2.setCollisionByExclusion(-1, true);
-  platforms3.setCollisionByExclusion(-1, true);
+  this.platforms = map.createStaticLayer('Platforms', tileset, 0, 200);
+  this.platforms2 = map.createDynamicLayer('Platforms2', tileset, 0, 200);
+  this.platforms3 = map.createStaticLayer('Platforms3', tileset, 0, 200);
+  this.platforms.setCollisionByExclusion(-1, true);
+  this.platforms2.setCollisionByExclusion(-1, true);
+  this.platforms3.setCollisionByExclusion(-1, true);
   // Player
-  this.player = this.physics.add.sprite(2492, 100, 'player');
+  this.player = this.physics.add.sprite(100, 100, 'player');
   this.player.setBounce(0.1);
   this.player.setCollideWorldBounds(true);
   this.player.setSize(50, 99)
-  this.physics.add.collider(this.player, platforms);
-  this.physics.add.collider(this.player, platforms2);
-  this.physics.add.collider(this.player, platforms3);
-
-  platforms2.alpha = 0;
-  platforms3.alpha = 0;
+  this.physics.add.collider(this.player, this.platforms);
+  this.physics.add.collider(this.player, this.platforms2);
+  this.physics.add.collider(this.player, this.platforms3);
+  this.platforms2.alpha = 0;
+  this.platforms3.alpha = 1;
   this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
-
   this.anims.create({
     key: 'walk',
     frames: this.anims.generateFrameNames('player', {
@@ -88,26 +85,124 @@ function create() {
     allowGravity: false,
     immovable: true
   });
+  map.getObjectLayer('Spikes').objects.forEach((spike) => {
+    // Add new spikes to our sprite group
+    const spikeSprite = this.spikes.create(spike.x, spike.y + 200 - spike.height, 'spike').setOrigin(0);
+});
   // Let's get the spike objects, these are NOT sprites
   // We'll create spikes in our sprite group for each object in our map
-
-
-
   // Puerta amarilla
-  this.door1 = this.physics.add.staticImage(670, 490, 'yellowdoor'); // Listo
-  this.door2 = this.physics.add.staticImage(1310, 424, 'bluedoor'); // List
-  this.door3 = this.physics.add.staticImage(1950, 360, 'reddoor'); // Listo
-  this.door4 = this.physics.add.staticImage(2592, 296, 'greendoor'); // Listo
-  this.door4.body.setSize(64, 64, true);
-
-  console.log(this.door4);
-  this.door5 = this.physics.add.staticImage(2786, 296, 'bluedoor');// Listo
-  this.door6 = this.physics.add.staticImage(3296, 296, 'reddoor'); // Listo
-  this.door7 = this.physics.add.staticImage(3808, 296, 'greendoor'); // Listo
-  this.door8 = this.physics.add.staticImage(4066, 360, 'yellowdoor'); // Listo
-
-
-
+  this.door1 = this.physics.add.staticImage(670, 426, 'yellowdoor'); // Listo
+  this.door1.setOrigin(0.5, -0.5)
+  this.door1.body.setSize(64, 128, true);
+  this.door2 = this.physics.add.staticImage(1310, 360, 'bluedoor'); // List
+  this.door2.setOrigin(0.5, -0.5)
+  this.door2.body.setSize(64, 128, true);
+  this.door3 = this.physics.add.staticImage(1950, 296, 'reddoor'); // Listo
+  this.door3.setOrigin(0.5, -0.5)
+  this.door3.body.setSize(64, 128, true);
+  this.door4 = this.physics.add.staticImage(2592, 232, 'bluedoor'); // Listo
+  this.door4.setOrigin(0.5, -0.5)
+  this.door4.body.setSize(64, 128, true);
+  this.door5 = this.physics.add.staticImage(2786, 232, 'bluedoor');// Listo
+  this.door5.setOrigin(0.5, -0.5)
+  this.door5.body.setSize(64, 128, true);
+  this.door6 = this.physics.add.staticImage(3296, 232, 'reddoor'); // Listo
+  this.door6.setOrigin(0.5, -0.5)
+  this.door6.body.setSize(64, 128, true);
+  this.door7 = this.physics.add.staticImage(3808, 232, 'bluedoor'); // Listo
+  this.door7.setOrigin(0.5, -0.5)
+  this.door7.body.setSize(64, 128, true);
+  this.door8 = this.physics.add.staticImage(4066, 296, 'yellowdoor'); // Listo
+  this.door8.setOrigin(0.5, -0.5)
+  this.door8.body.setSize(64, 128, true);
+  var aKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+  var sKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+  var dKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+  var ref = this;
+  aKey.on('down', function (key, event) {
+    event.stopPropagation();
+    console.log("Presionada a");
+    ref.tweens.add({
+      targets: [ref.door1.body, ref.door1],
+      y: ref.door1.y + 128,
+      duration: 2000,
+      ease: 'Power1',
+      yoyo: true
+    });
+    ref.tweens.add({
+      targets: [ref.door8.body, ref.door8],
+      y: ref.door8.y + 128,
+      duration: 2000,
+      ease: 'Power1',
+      yoyo: true
+    });
+  });
+  sKey.on('down', function (key, event) {
+    event.stopPropagation();
+    console.log("Presionada s");
+    ref.tweens.add({
+      targets: [ref.door2.body, ref.door2],
+      y: ref.door2.y + 128,
+      duration: 2000,
+      ease: 'Power1',
+      yoyo: true
+    });
+    ref.tweens.add({
+      targets: [ref.door4.body, ref.door4],
+      y: ref.door4.y + 128,
+      duration: 2000,
+      ease: 'Power1',
+      yoyo: true
+    });
+    ref.tweens.add({
+      targets: [ref.door5.body, ref.door5],
+      y: ref.door5.y + 128,
+      duration: 2000,
+      ease: 'Power1',
+      yoyo: true
+    });
+    ref.tweens.add({
+      targets: [ref.platforms2],
+      alpha: 1,
+      duration: 2000,
+      ease: 'Power1',
+      yoyo: true
+    });
+   
+    ref.tweens.add({
+      targets: [ref.door7.body, ref.door7],
+      y: ref.door7.y + 128,
+      duration: 2000,
+      ease: 'Power1',
+      yoyo: true
+    });
+  });
+  dKey.on('down', function (key, event) {
+    event.stopPropagation();
+    ref.tweens.add({
+      targets: [ref.door3.body, ref.door3],
+      y: ref.door3.y + 128,
+      duration: 2000,
+      ease: 'Power1',
+      yoyo: true
+    });
+    ref.tweens.add({
+      targets: [ref.door6.body, ref.door6],
+      y: ref.door6.y + 128,
+      duration: 2000,
+      ease: 'Power1',
+      yoyo: true
+    });
+    ref.tweens.add({
+      targets: [ref.platforms3],
+      alpha: 1,
+      duration: 2000,
+      ease: 'Power1',
+      yoyo: true
+    });
+  });
+  this.physics.add.collider(this.player, this.spikes, playerHit, null, this);
 }
 function playerHit(player, spike) {
   player.setVelocity(0, 0);
@@ -156,5 +251,5 @@ function update() {
     // otherwise, make them face the other side
     this.player.setFlipX(true);
   }
-  this.physics.world.collide(this.player, [this.door4, this.door5, this.door6, this.door7, this.door8]);
+  this.physics.world.collide(this.player, [this.door1, this.door2, this.door3, this.door4, this.door5, this.door6, this.door7, this.door8]);
 }
